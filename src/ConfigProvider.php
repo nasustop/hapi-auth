@@ -27,6 +27,14 @@ class ConfigProvider
                     ],
                 ],
             ],
+            'publish' => [
+                [
+                    'id' => 'auth',
+                    'description' => 'The config for auth.',
+                    'source' => __DIR__ . '/../publish/auth.php',
+                    'destination' => BASE_PATH . '/config/autoload/auth.php',
+                ],
+            ],
         ];
     }
 }
