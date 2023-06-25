@@ -11,7 +11,6 @@ declare(strict_types=1);
  */
 namespace Nasustop\HapiAuth;
 
-use Hyperf\Context\ApplicationContext;
 use Hyperf\Contract\ConfigInterface;
 
 class AuthManager
