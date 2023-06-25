@@ -11,10 +11,8 @@ declare(strict_types=1);
  */
 namespace Nasustop\HapiAuth;
 
+use Hyperf\Context\ApplicationContext;
 use Hyperf\Contract\ConfigInterface;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\ContainerInterface;
-use Psr\Container\NotFoundExceptionInterface;
 
 class AuthManager
 {
@@ -26,53 +24,37 @@ class AuthManager
 
     protected array $payload;
 
-    public function __construct(protected ContainerInterface $container, protected string $guard)
+    public function __construct(protected string $guard)
     {
         $providerName = $this->getConfig("auth.{$guard}.provider");
         if (! class_exists($providerName)) {
             throw new \InvalidArgumentException("auth.{$guard}.provider is not exists");
         }
-        $provider = new $providerName($this->container, $guard);
+        $provider = new $providerName($guard);
         if (! $provider instanceof UserProviderInterface) {
             throw new \InvalidArgumentException("auth.{$guard}.provider is not UserProviderInterface type class");
         }
         $this->userProvider = $provider;
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     public function attempt(array $inputData): string
     {
         $user = $this->userProvider->login($inputData);
         return $this->getJwtFactory()->encode($user);
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     public function user(): array
     {
         $payload = $this->payload();
         return $this->userProvider->getInfo($payload);
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     public function logout(): bool
     {
         $payload = $this->payload();
         return $this->userProvider->logout($payload);
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     public function payload(int $leeway = 0): array
     {
         if (empty($this->payload)) {
@@ -82,8 +64,7 @@ class AuthManager
     }
 
     /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
+     * refresh token.
      */
     public function refresh(int $leeway = 0): string
     {
@@ -95,8 +76,7 @@ class AuthManager
     }
 
     /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
+     * validateToken.
      */
     public function validateToken(string $token): array
     {
@@ -106,26 +86,20 @@ class AuthManager
 
     /**
      * get JwtFactory.
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
      */
     protected function getJwtFactory(): JwtFactory
     {
         if (empty($this->jwtFactory)) {
-            $this->jwtFactory = new JwtFactory($this->container, $this->guard);
+            $this->jwtFactory = new JwtFactory($this->guard);
             $this->jwtFactory->setJwtConfig($this->userProvider->setJwtConfig());
         }
         return $this->jwtFactory;
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     protected function getConfig(string $key, mixed $default = null)
     {
         if (empty($this->config)) {
-            $this->config = $this->container->get(ConfigInterface::class);
+            $this->config = make(ConfigInterface::class);
         }
         return $this->config->get($key, $default);
     }

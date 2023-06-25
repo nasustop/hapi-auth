@@ -2,6 +2,7 @@
     "name": "nasustop/hapi-auth",
     "type": "library",
     "license": "MIT",
+    "version": "3.0.0",
     "keywords": [
         "php",
         "hyperf"
@@ -20,8 +21,9 @@
     "require": {
         "php": ">=8.0",
         "firebase/php-jwt": "^6.4",
-        "hyperf/contract": "^3.0",
-        "hyperf/http-server": "^3.0"
+        "hyperf/contract": "~3.0.0",
+        "hyperf/http-server": "~3.0.0",
+        "nasustop/hapi-helpers": "~3.0.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",
@@ -47,6 +49,12 @@
     "extra": {
         "hyperf": {
             "config": "Nasustop\\HapiAuth\\ConfigProvider"
+        }
+    },
+    "repositories": {
+        "packagist": {
+            "type": "composer",
+            "url": "https://mirrors.aliyun.com/composer/"
         }
     }
 }

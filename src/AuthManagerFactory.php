@@ -11,16 +11,10 @@ declare(strict_types=1);
  */
 namespace Nasustop\HapiAuth;
 
-use Psr\Container\ContainerInterface;
-
 class AuthManagerFactory
 {
-    public function __construct(protected ContainerInterface $container)
-    {
-    }
-
     public function guard(string $guard): AuthManager
     {
-        return new AuthManager($this->container, $guard);
+        return new AuthManager($guard);
     }
 }

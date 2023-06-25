@@ -16,9 +16,6 @@ use Firebase\JWT\Key;
 use Hyperf\Contract\ConfigInterface;
 use Hyperf\HttpMessage\Exception\UnauthorizedHttpException;
 use Hyperf\HttpServer\Contract\RequestInterface;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\ContainerInterface;
-use Psr\Container\NotFoundExceptionInterface;
 
 class JwtFactory
 {
@@ -42,19 +39,11 @@ class JwtFactory
 
     protected string $prefix;
 
-    /**
-     * @throws NotFoundExceptionInterface
-     * @throws ContainerExceptionInterface
-     */
-    public function __construct(protected ContainerInterface $container, protected string $guard)
+    public function __construct(protected string $guard)
     {
         $this->setJwtConfig();
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     * @throws ContainerExceptionInterface
-     */
     public function setJwtConfig(array $config = [])
     {
         $this->alg = $config['alg'] ?? $this->getConfig(sprintf('auth.%s.jwt.alg', $this->guard));
@@ -79,10 +68,6 @@ class JwtFactory
         return JWT::encode($payload, $this->secret, $this->alg);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     * @throws ContainerExceptionInterface
-     */
     public function decode(int $leeway = 0): array
     {
         $key = new Key($this->secret, $this->alg);
@@ -91,10 +76,6 @@ class JwtFactory
         return (array) $payloadObj;
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     public function getToken(): Token
     {
         if (empty($this->token)) {
@@ -111,14 +92,10 @@ class JwtFactory
         return $this;
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     public function parseToken(): static
     {
         if (empty($this->request)) {
-            $this->request = $this->container->get(RequestInterface::class);
+            $this->request = make(RequestInterface::class);
         }
         $header = $this->request->header($this->header);
         if ($header and preg_match('/' . $this->prefix . '\s*(\S+)\b/i', $header, $matches)) {
@@ -128,14 +105,10 @@ class JwtFactory
         throw new UnauthorizedHttpException('The token could not be parsed from the request');
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     protected function getConfig(string $key, mixed $default = null)
     {
         if (empty($this->config)) {
-            $this->config = $this->container->get(ConfigInterface::class);
+            $this->config = make(ConfigInterface::class);
         }
         return $this->config->get($key, $default);
     }

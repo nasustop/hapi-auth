@@ -11,11 +11,9 @@ declare(strict_types=1);
  */
 namespace Nasustop\HapiAuth;
 
-use Psr\Container\ContainerInterface;
-
 abstract class UserProvider implements UserProviderInterface
 {
-    public function __construct(protected ContainerInterface $container, protected string $guard)
+    public function __construct(protected string $guard)
     {
     }
 

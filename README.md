@@ -1,5 +1,5 @@
 # HapiAuth
-hyperf的auth组件
+hapi的auth组件
 
 ## 安装
 ```
